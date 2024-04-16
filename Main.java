@@ -167,5 +167,9 @@ public class Main {
             GameInputGUI gui = new GameInputGUI();
             gui.setVisible(true);
         });
+        // Display statistics in a separate window
+        SwingUtilities.invokeLater(() -> {
+            new GameInputGUI.StatisticsDisplay(statistics);
+        });
     }
 }

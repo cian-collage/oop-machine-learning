@@ -218,9 +218,6 @@ public class Stats {
 
         // Likelihood of hours played | Recommended
         double P_Hours = HoursPlayed / (HoursPlayed * avgHoursNotRec);
-        System.out.println("HoursPlayed "+HoursPlayed);
-        System.out.println("avgHoursNotRec "+avgHoursNotRec);
-        System.out.println("(HoursPlayed * avgHoursNotRec) "+(HoursPlayed * avgHoursNotRec));
 
 
 
