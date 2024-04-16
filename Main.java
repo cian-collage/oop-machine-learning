@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
 
 public class Main {
 
@@ -162,14 +160,17 @@ public class Main {
         List<Instance> TestingData = readTestingData(); // Read Testing data
         Tester.Test(classifier, TestingData); // Test the classifier
 
-        // Create and show the GUI
+
+        // Display GameInputGUI in a separate window
         SwingUtilities.invokeLater(() -> {
-            GameInputGUI gui = new GameInputGUI();
-            gui.setVisible(true);
+            GUI.GameInputGUI gameInputGUI = new GUI.GameInputGUI();
+            gameInputGUI.setLocation(0, 0); // Set the desired location
         });
+
         // Display statistics in a separate window
         SwingUtilities.invokeLater(() -> {
-            new GameInputGUI.StatisticsDisplay(statistics);
+            GUI.StatisticsDisplay statisticsDisplay = new GUI.StatisticsDisplay(statistics);
+            statisticsDisplay.setLocation(0, 200); // Set the desired location
         });
     }
 }
