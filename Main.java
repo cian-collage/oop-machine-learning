@@ -39,7 +39,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return instances;
     }
 
@@ -71,10 +70,10 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return validationInstances;
     }
 
+    // read data from Testing CSV file
     private static List<Instance> readTestingData() {
         List<Instance> testingInstances = new ArrayList<>();
 
@@ -102,9 +101,9 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return testingInstances;
     }
+
 
     public static void main(String[] args) {
         // Read data from CSV file
@@ -114,43 +113,6 @@ public class Main {
         Stats classifier = new Stats();
         classifier.calculateStatistics(data);
         Map<String, Double> statistics = classifier.calculateStatistics(data);
-
-        // Extract statistics from the map
-        double totalReviews = statistics.get("totalReviews");
-        double recCount = statistics.get("recCount");
-        double notRecCount = statistics.get("notRecCount");
-        double percentRec = statistics.get("percentRec");
-        double percentNotRec = statistics.get("percentNotRec");
-        double avgHoursRec = statistics.get("avgHoursRec");
-        double avgHoursNotRec = statistics.get("avgHoursNotRec");
-        double avgPricePerHourRec = statistics.get("avgPricePerHourRec");
-        double avgPricePerHourNotRec = statistics.get("avgPricePerHourNotRec");
-        double percentWinRec = statistics.get("percentWinRec");
-        double percentMacRec = statistics.get("percentMacRec");
-        double percentLinuxRec = statistics.get("percentLinuxRec");
-        double percentWinNotRec = statistics.get("percentWinNotRec");
-        double percentMacNotRec = statistics.get("percentMacNotRec");
-        double percentLinuxNotRec = statistics.get("percentLinuxNotRec");
-
-
-        // Print statistics
-        System.out.println("Total reviews: " + totalReviews);
-        System.out.println("Total recommended reviews: " + recCount + " (" + percentRec + "%)");
-        System.out.println("Total not recommended reviews: " + notRecCount + " (" + percentNotRec + "%)");
-
-        System.out.println("\nRecommended Reviews Statistics:");
-        System.out.println("Average hours played : " + avgHoursRec);
-        System.out.println("Average hours per Euro: " + avgPricePerHourRec);
-        System.out.println("Percentage on Windows: " + percentWinRec + "%");
-        System.out.println("Percentage on Mac: " + percentMacRec + "%");
-        System.out.println("Percentage on Linux: " + percentLinuxRec + "%");
-
-        System.out.println("\nNot Recommended Reviews Statistics:");
-        System.out.println("Average hours played : " + avgHoursNotRec);
-        System.out.println("Average hours per Euro: " + avgPricePerHourNotRec);
-        System.out.println("Percentage on Windows: " + percentWinNotRec + "%");
-        System.out.println("Percentage on Mac: " + percentMacNotRec + "%");
-        System.out.println("Percentage on Linux: " + percentLinuxNotRec + "%");
 
         // machine_learning.Validation
         List<Instance> validationData = readValidationData(); // Read validation data
@@ -164,13 +126,14 @@ public class Main {
         // Display GameInputGUI in a separate window
         SwingUtilities.invokeLater(() -> {
             GUI.GameInputGUI gameInputGUI = new GUI.GameInputGUI();
-            gameInputGUI.setLocation(0, 0); // Set the desired location
+            gameInputGUI.setLocation(0, 0); // Set the location to x = 0 ,y = 0
         });
 
         // Display statistics in a separate window
         SwingUtilities.invokeLater(() -> {
             GUI.StatisticsDisplay statisticsDisplay = new GUI.StatisticsDisplay(statistics);
-            statisticsDisplay.setLocation(0, 200); // Set the desired location
+            statisticsDisplay.setLocation(0, 200); // Set location to below GameInputGUI
         });
     }
+
 }

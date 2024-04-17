@@ -157,16 +157,14 @@ class GUI extends JFrame{
 
             textArea.append("\n"+"Recommended Reviews Statistics: " +"\n");
             textArea.append("Average Hours Recommended: " + "\t" + String.format("%.3f", statistics.get("avgHoursRec")) + " hours \n");
-            textArea.append("Average Price per Hour Recommended: " + "\t" + String.format("%.3f", statistics.get("avgPricePerHourRec")) + " €/hr \n");
+            textArea.append("Average Price per Hour Recommended: " + "\t" + String.format("%.3f", statistics.get("avgPricePerHourRec")) + " € / hr \n");
             textArea.append("Percent Recommended on Windows: " + "\t" + String.format("%.3f", statistics.get("percentWinRec")) + "%" + "\n");
             textArea.append("Percent Recommended on Mac: " + "\t" + String.format("%.3f", statistics.get("percentMacRec")) + "%" + "\n");
             textArea.append("Percent Recommended on Linux: " + "\t" + String.format("%.3f", statistics.get("percentLinuxRec")) + "%" + "\n");
 
-
-
             textArea.append("\n"+"Not Recommended Reviews Statistics: " +"\n");
             textArea.append("Average Hours Not Recommended: " + "\t" + String.format("%.3f", statistics.get("avgHoursNotRec")) + " hours \n");
-            textArea.append("Average Price per Hour Not Recommended: " + "\t" + String.format("%.3f", statistics.get("avgPricePerHourNotRec")) + "€/hr \n");
+            textArea.append("Average Price per Hour Not Recommended: " + "\t" + String.format("%.3f", statistics.get("avgPricePerHourNotRec")) + "€ / hr \n");
             textArea.append("Percent Not Recommended on Windows: " + "\t" + String.format("%.3f", statistics.get("percentWinNotRec")) + "%" + "\n");
             textArea.append("Percent Not Recommended on Mac: " + "\t" + String.format("%.3f", statistics.get("percentMacNotRec")) + "%" + "\n");
             textArea.append("Percent Not Recommended on Linux: " + "\t" + String.format("%.3f", statistics.get("percentLinuxNotRec")) + "%" + "\n");

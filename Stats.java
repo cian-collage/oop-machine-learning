@@ -7,15 +7,14 @@ import java.util.Map;
 public class Stats {
 
     private final Map<String, Double> probabilities;
-
     private final Map<String, Double> statistics;
 
     public Stats() {
         probabilities = new HashMap<>();
         statistics = new HashMap<>();
     }
-    // Method to calculateStatistics the classifier and calculate statistics
 
+    // Method to calculateStatistics the classifier and calculate statistics
     public Map<String, Double> calculateStatistics(List<Instance> data) {
         // Calculate probabilities
         int totalInstances = data.size();
@@ -61,33 +60,36 @@ public class Stats {
         int macCountNotRec = 0;
         int linuxCountNotRec = 0;
 
+        double sumSqDiffHoursRec = 0;
+        double sumSqDiffHoursNotRec = 0;
+        double sumSqDiffPricePerHourRec = 0;
+        double sumSqDiffPricePerHourNotRec = 0;
         
-        // Calculate statistics
+        // Calculate statistics by running through each instance
         for (Instance instance : data) {
             double hoursPlayed = instance.getHoursPlayed();
             double pricePerHour = instance.getHourToPriceRatio();
-
             double hoursPlayedlog;
             double pricePerHourlog;
 
+            // log hours played to get normal distribution
             if (hoursPlayed != 0) {
                 hoursPlayedlog = Math.log(hoursPlayed);
-
             } else {
-                // Set hoursPlayed to a default value
-                hoursPlayed = 0.0000001; //default value
+                // Set hoursPlayed to a default value to prevent Loging 0
+                hoursPlayed = 0.0000001;
                 hoursPlayedlog = 0.0000001;
             }
 
+            // log pricePerHour to get normal distribution
             if (pricePerHour != 0) {
                 pricePerHourlog = Math.log(pricePerHour);
-
             } else {
-                // Set hoursPlayed to a default value
+                // Set hoursPlayed to a default value to prevent Loging 0
                 pricePerHour = 0.0000001; //default value
                 pricePerHourlog = 0.0000001;
             }
-
+            //count if recommended
             if (instance.isRecommended()) {
                 recCount++;
                 pricePerHourRec += pricePerHour;
@@ -105,7 +107,7 @@ public class Stats {
                 if (instance.isLinux()) {
                     linuxCountRec++;
                 }
-            } else {
+            } else { //count if Not recommended
                 notRecCount++;
                 pricePerHourNotRec += pricePerHour;
                 totalHoursNotRec += hoursPlayed;
@@ -124,16 +126,19 @@ public class Stats {
             }
         }
 
-        // Calculate averages
+        // Calculate average Log hours
         double avgLogHoursRec = recCount != 0 ? totalLogHoursRec / recCount : 0;
         double avgLogHoursNotRec = notRecCount != 0 ? totalLogHoursNotRec / notRecCount : 0;
 
+        // Calculate average Log Price per Hour
         double avgLogPricePerHourRec = recCount != 0 ? logPricePerHourRec / recCount : 0;
         double avgLogPricePerHourNotRec = notRecCount != 0 ? logPricePerHourNotRec / notRecCount : 0;
 
+        // Calculate average hours
         double avgHoursRec = recCount != 0 ? totalHoursRec / recCount : 0;
         double avgHoursNotRec = notRecCount != 0 ? totalHoursNotRec / notRecCount : 0;
 
+        // Calculate average Price per Hour
         double avgPricePerHourRec = recCount != 0 ? pricePerHourRec / recCount : 0;
         double avgPricePerHourNotRec = notRecCount != 0 ? pricePerHourNotRec / notRecCount : 0;
 
@@ -152,6 +157,23 @@ public class Stats {
         double percentMacNotRec = ((double) macCountNotRec / totalReviews) * 100;
         double percentLinuxNotRec = ((double) linuxCountNotRec / totalReviews) * 100;
 
+        // Calculate sum of squared differences for standard deviation
+        for (Instance instance : data) {
+            if (instance.isRecommended()) {
+                sumSqDiffHoursRec += Math.pow(instance.getHoursPlayed() - avgHoursRec, 2);
+                sumSqDiffPricePerHourRec += Math.pow(instance.getHourToPriceRatio() - avgPricePerHourRec, 2);
+            } else {
+                sumSqDiffHoursNotRec += Math.pow(instance.getHoursPlayed() - avgHoursNotRec, 2);
+                sumSqDiffPricePerHourNotRec += Math.pow(instance.getHourToPriceRatio() - avgPricePerHourNotRec, 2);
+            }
+        }
+
+        // Calculate standard deviation
+        double stdDevHoursRec = recCount != 0 ? Math.sqrt(sumSqDiffHoursRec / recCount) : 0;
+        double stdDevHoursNotRec = notRecCount != 0 ? Math.sqrt(sumSqDiffHoursNotRec / notRecCount) : 0;
+        double stdDevPricePerHourRec = recCount != 0 ? Math.sqrt(sumSqDiffPricePerHourRec / recCount) : 0;
+        double stdDevPricePerHourNotRec = notRecCount != 0 ? Math.sqrt(sumSqDiffPricePerHourNotRec / notRecCount) : 0;
+
         // Store statistics
         statistics.put("totalReviews", (double) totalReviews);
         statistics.put("recCount", (double) recCount);
@@ -169,6 +191,11 @@ public class Stats {
         statistics.put("avgPricePerHourRec", avgPricePerHourRec);
         statistics.put("avgPricePerHourNotRec", avgPricePerHourNotRec);
 
+        statistics.put("stdDevHoursRec", stdDevHoursRec);
+        statistics.put("stdDevHoursNotRec", stdDevHoursNotRec);
+        statistics.put("stdDevPricePerHourRec", stdDevPricePerHourRec);
+        statistics.put("stdDevPricePerHourNotRec", stdDevPricePerHourNotRec);
+
         statistics.put("percentWinRec", percentWinRec);
         statistics.put("percentMacRec", percentMacRec);
         statistics.put("percentLinuxRec", percentLinuxRec);
@@ -178,13 +205,12 @@ public class Stats {
 
         return statistics;
     }
-    // Method to predict if a game is recommended
-// Method to predict if a game is recommended
 
     public boolean predict(Instance instance) {
         // Calculate likelihoods
         double likelihoodRecommended = 1.0;
         double likelihoodNotRecommended = 1.0;
+
         // Calculate likelihood based on features
         likelihoodRecommended *= calculateRecommendedLikelihood (instance.getHoursPlayed(), instance.getHourToPriceRatio(), instance.isWindows(), instance.isMac(), instance.isLinux());
         likelihoodNotRecommended *= calculateNotRecommendedLikelihood (instance.getHoursPlayed(), instance.getHourToPriceRatio(), instance.isWindows(), instance.isMac(), instance.isLinux());
@@ -193,6 +219,7 @@ public class Stats {
         double posteriorRecommended = likelihoodRecommended * probabilities.get("recommended");
         double posteriorNotRecommended = likelihoodNotRecommended * probabilities.get("not_recommended");
 
+        // Determine which is more Likely to be True
         if (posteriorRecommended > posteriorNotRecommended) {
             return true;
         } else {
@@ -201,34 +228,27 @@ public class Stats {
     }
 
     // Method to calculate likelihood of features given class
-
     private double calculateRecommendedLikelihood(double hoursPlayed, double hourToPriceRatio, boolean windows, boolean mac, boolean linux) {
-        double recCount = statistics.get("recCount");
         double percentRec = statistics.get("percentRec");
-        double avgHoursNotRec = statistics.get("avgLogHoursNotRec");
         double avgHoursRec = statistics.get("avgLogHoursRec");
-        double avgPricePerHourNotRec = statistics.get("avgLogPricePerHourNotRec");
-        double avgPricePerHourRec = statistics.get("avgLogPricePerHourRec");
         double percentWinRec = statistics.get("percentWinRec");
         double percentMacRec = statistics.get("percentMacRec");
         double percentLinuxRec = statistics.get("percentLinuxRec");
+        double stdDevHoursRec = statistics.get("stdDevHoursRec");
+        double stdDevPricePerHourRec = statistics.get("stdDevPricePerHourRec");
 
         // Convert hours played to log form
         double HoursPlayed = Math.log(hoursPlayed) ;
 
         // Likelihood of hours played | Recommended
-        double P_Hours = HoursPlayed / (HoursPlayed * avgHoursNotRec);
-
-
-
-
-        double RecommendedCount_given_H = (P_Hours * recCount) / ((avgHoursRec / (HoursPlayed * avgHoursRec)) *recCount);
-        double hoursPlayedRec  = (RecommendedCount_given_H * P_Hours) / recCount;
+        // P(H∣recommended)= 1/(√2π⋅stdDevHoursRec) * e^−( (2*stdDevHoursRec)^2 / (h−avgHoursRec)^2 )
+        double H_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevHoursRec, 2));
+        double hoursPlayedNotRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevHoursRec)) * Math.exp(H_exponent);
 
         // Likelihood of avgPricePerHour | Recommended
-        double P_PricePerHours = avgPricePerHourRec / (hourToPriceRatio + avgPricePerHourNotRec);
-        double recCount_given_P_H = (P_PricePerHours * recCount) / ((avgPricePerHourRec / (hourToPriceRatio + avgPricePerHourRec)) * recCount);
-        double pricePerHourRec   = (recCount_given_P_H * P_PricePerHours) / recCount;
+        // P(PperH∣recommended)= 1/(√2π*stdDevPricePerHourRec) * e^−( (2*stdDevPricePerHourRec)^2 / (h−avgHoursRec)^2 )
+        double PperH_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
+        double pricePerHourRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevPricePerHourRec)) * Math.exp(PperH_exponent);
 
         // Likelihood of Windows | Recommended
         double likelihoodWinGivenRec;
@@ -254,33 +274,30 @@ public class Stats {
             likelihoodLinuxGivenRec = 1 - (percentLinuxRec / 100.0);
         }
 
-        return (percentRec / 100) * hoursPlayedRec * pricePerHourRec * likelihoodWinGivenRec * likelihoodMacGivenRec * likelihoodLinuxGivenRec;
+        return (percentRec / 100) * hoursPlayedNotRec * pricePerHourRec * likelihoodWinGivenRec * likelihoodMacGivenRec * likelihoodLinuxGivenRec;
     }
 
     private double calculateNotRecommendedLikelihood(double hoursPlayed, double hourToPriceRatio, boolean windows, boolean mac, boolean linux) {
-        double notRecCount = statistics.get("notRecCount");
         double percentRec = statistics.get("percentRec");
-        double avgHoursNotRec = statistics.get("avgLogHoursNotRec");
         double avgHoursRec = statistics.get("avgLogHoursRec");
-
-        double avgPricePerHourNotRec = statistics.get("avgLogPricePerHourNotRec");
         double percentWinNotRec = statistics.get("percentWinNotRec");
         double percentMacNotRec = statistics.get("percentMacNotRec");
         double percentLinuxNotRec = statistics.get("percentLinuxNotRec");
+        double stdDevHoursNotRec = statistics.get("stdDevHoursNotRec");
+        double stdDevPricePerHourRec = statistics.get("stdDevPricePerHourRec");
 
         // Convert hours played to log form
         double HoursPlayed = Math.log(hoursPlayed);
 
         // Likelihood of hours played | Not Recommended
-        double P_Hours_NotRecommended = avgHoursNotRec / (HoursPlayed * avgHoursRec);
-
-        double notRecCount_given_H = (P_Hours_NotRecommended * notRecCount) / ((avgHoursNotRec / (HoursPlayed * avgHoursNotRec)) * notRecCount);
-        double hoursPlayedNotRec = (notRecCount_given_H * P_Hours_NotRecommended) / notRecCount;
+        // P(H∣Notrecommended)= 1/(√2π⋅stdDevHoursNotRec) * e^−( (2*stdDevHoursNotRec)^2 / (h−avgHoursNotRec)^2 )
+        double H_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevHoursNotRec, 2));
+        double hoursPlayedNotRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevHoursNotRec)) * Math.exp(H_exponent);
 
         // Likelihood of avgPricePerHour | Not Recommended
-        double P_PricePerHours_NotRecommended = avgPricePerHourNotRec / (hourToPriceRatio + avgPricePerHourNotRec);
-        double notRecCount_given_P_H = (P_PricePerHours_NotRecommended * notRecCount) / ((avgPricePerHourNotRec / (hourToPriceRatio + avgPricePerHourNotRec)) * notRecCount);
-        double pricePerHourNotRec = (notRecCount_given_P_H * P_PricePerHours_NotRecommended) / notRecCount;
+        // P(PperH∣Notrecommended)= 1/(√2π*stdDevPricePerHourNotRec) * e^−( (2*stdDevPricePerHourNotRec)^2 / (h−avgHoursNotRec)^2 )
+        double PperH_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
+        double pricePerHourNotRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevPricePerHourRec)) * Math.exp(PperH_exponent);
 
         // Likelihood of Windows | Not Recommended
         double likelihoodWinGivenNotRec;
@@ -291,7 +308,7 @@ public class Stats {
         }
 
         // Likelihood of mac | Not Recommended
-        double likelihoodMacGivenNotRec       ;
+        double likelihoodMacGivenNotRec;
         if (mac) {
             likelihoodMacGivenNotRec = percentMacNotRec / 100.0;
         } else {
@@ -299,7 +316,7 @@ public class Stats {
         }
 
         // Likelihood of Linux | Not Recommended
-        double likelihoodLinuxGivenNotRec       ;
+        double likelihoodLinuxGivenNotRec;
         if (linux) {
             likelihoodLinuxGivenNotRec = percentLinuxNotRec / 100.0;
         } else {
