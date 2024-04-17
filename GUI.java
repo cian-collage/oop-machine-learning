@@ -1,3 +1,13 @@
+/*
+Author: Cian Anderson
+Student Number: C22793219
+Date: 17/04/2024
+
+Description:
+This class contains the  components two GUIs 1: inputting New game data and viewing prediction, 2: displaying statistics.
+
+*/
+
 package machine_learning;
 
 import javax.swing.*;
@@ -13,7 +23,7 @@ import java.util.Map;
 
 class GUI extends JFrame{
 
-
+    //  Read in stats to display in popup window
     static List<Instance> readData() {
         List<Instance> instances = new ArrayList<>();
 
@@ -23,9 +33,10 @@ class GUI extends JFrame{
             br.readLine();
             // Read each line of the CSV file
             while ((line = br.readLine()) != null) {
-                // Split the line by commas to get the values
+                // Split the line by commas to get the values into an array
                 String[] values = line.split(",");
-                // Extract relevant features
+
+                // Extract relevant features depending on their position in the array
                 double hoursPlayed = Double.parseDouble(values[4]);
                 double price = Double.parseDouble(values[5]);
                 double hourToPrice = (hoursPlayed == 0) ? 0 : hoursPlayed / price;
@@ -34,7 +45,7 @@ class GUI extends JFrame{
                 boolean linux = Integer.parseInt(values[9]) == 1;
                 boolean recommended = Integer.parseInt(values[10]) == 1;
 
-                // Create a machine_learning.Instance object
+                // Create an Instance (individual review) with the data
                 Instance instance = new Instance(hoursPlayed, hourToPrice, windows, mac, linux, recommended);
                 // Add the instance to the list
                 instances.add(instance);
@@ -101,7 +112,6 @@ class GUI extends JFrame{
             // Calculate statistics for the Naive Bayes classifier
             Stats classifier = new Stats();
             classifier.calculateStatistics(data);
-            Map<String, Double> statistics = classifier.calculateStatistics(data);
 
             setLocationRelativeTo(null);
             setVisible(true);

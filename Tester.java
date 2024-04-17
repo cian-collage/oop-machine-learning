@@ -1,3 +1,15 @@
+/*
+Author: Cian Anderson
+Student Number: C22793219
+Date: 17/04/2024
+
+Description:
+This class contains a method for testing the performance of the classifier using a testing dataset.
+by comparing the prediction vs the actual result
+
+*/
+
+
 package machine_learning;
 
 import java.util.List;

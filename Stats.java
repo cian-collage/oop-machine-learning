@@ -1,3 +1,15 @@
+/*
+Author: Cian Anderson
+Student Number: C22793219
+Date: 17/04/2024
+
+Description:
+Class responsible for calculating statistics and making predictions based on the machine learning model.
+It calculates statistics such as averages, standard deviations, and percentages based on the provided data.
+Additionally, it predicts whether an instance (Review) is recommended or not using calculated likelihoods and probabilities.
+
+*/
+
 package machine_learning;
 
 import java.util.HashMap;
@@ -6,21 +18,25 @@ import java.util.Map;
 
 public class Stats {
 
+
+    // Create two HashMaps to store probabilities and statistics.
     private final Map<String, Double> probabilities;
     private final Map<String, Double> statistics;
 
+    // Constructor for initializing the probabilities and statistics maps.
     public Stats() {
         probabilities = new HashMap<>();
         statistics = new HashMap<>();
     }
 
-    // Method to calculateStatistics the classifier and calculate statistics
+
+    // Method to calculate and store Statistics for later use based off of the Instances (Reviews) provided
     public Map<String, Double> calculateStatistics(List<Instance> data) {
-        // Calculate probabilities
+
         int totalInstances = data.size();
         int totalRecommended = 0;
 
-        // Count total recommended instances
+        // Count total recommended Instances (Reviews)
         for (Instance instance : data) {
             if (instance.isRecommended()) {
                 totalRecommended++;
@@ -65,7 +81,7 @@ public class Stats {
         double sumSqDiffPricePerHourRec = 0;
         double sumSqDiffPricePerHourNotRec = 0;
         
-        // Calculate statistics by running through each instance
+        // Calculate statistics by running through each Instance (Individual Review)
         for (Instance instance : data) {
             double hoursPlayed = instance.getHoursPlayed();
             double pricePerHour = instance.getHourToPriceRatio();
@@ -89,6 +105,7 @@ public class Stats {
                 pricePerHour = 0.0000001; //default value
                 pricePerHourlog = 0.0000001;
             }
+
             //count if recommended
             if (instance.isRecommended()) {
                 recCount++;
@@ -157,7 +174,7 @@ public class Stats {
         double percentMacNotRec = ((double) macCountNotRec / totalReviews) * 100;
         double percentLinuxNotRec = ((double) linuxCountNotRec / totalReviews) * 100;
 
-        // Calculate sum of squared differences for standard deviation
+        // Calculate sum of squared differences for standard deviations
         for (Instance instance : data) {
             if (instance.isRecommended()) {
                 sumSqDiffHoursRec += Math.pow(instance.getHoursPlayed() - avgHoursRec, 2);
@@ -168,7 +185,7 @@ public class Stats {
             }
         }
 
-        // Calculate standard deviation
+        // Calculate standard deviations
         double stdDevHoursRec = recCount != 0 ? Math.sqrt(sumSqDiffHoursRec / recCount) : 0;
         double stdDevHoursNotRec = notRecCount != 0 ? Math.sqrt(sumSqDiffHoursNotRec / notRecCount) : 0;
         double stdDevPricePerHourRec = recCount != 0 ? Math.sqrt(sumSqDiffPricePerHourRec / recCount) : 0;
@@ -206,12 +223,13 @@ public class Stats {
         return statistics;
     }
 
+    // Method to predict if an Instance (Review) is Recommended or not based on calculated likelihoods and probabilities.
     public boolean predict(Instance instance) {
-        // Calculate likelihoods
+        // initiate likelihoods as 100% likely
         double likelihoodRecommended = 1.0;
         double likelihoodNotRecommended = 1.0;
 
-        // Calculate likelihood based on features
+        // Calculate likelihood based on Instance (Review) Data using calculateLikelihood methods
         likelihoodRecommended *= calculateRecommendedLikelihood (instance.getHoursPlayed(), instance.getHourToPriceRatio(), instance.isWindows(), instance.isMac(), instance.isLinux());
         likelihoodNotRecommended *= calculateNotRecommendedLikelihood (instance.getHoursPlayed(), instance.getHourToPriceRatio(), instance.isWindows(), instance.isMac(), instance.isLinux());
 
@@ -220,15 +238,12 @@ public class Stats {
         double posteriorNotRecommended = likelihoodNotRecommended * probabilities.get("not_recommended");
 
         // Determine which is more Likely to be True
-        if (posteriorRecommended > posteriorNotRecommended) {
-            return true;
-        } else {
-            return false;
-        }
+        return posteriorRecommended > posteriorNotRecommended;
     }
 
     // Method to calculate likelihood of features given class
     private double calculateRecommendedLikelihood(double hoursPlayed, double hourToPriceRatio, boolean windows, boolean mac, boolean linux) {
+        // Retrieve Relevant statistics
         double percentRec = statistics.get("percentRec");
         double avgHoursRec = statistics.get("avgLogHoursRec");
         double percentWinRec = statistics.get("percentWinRec");
@@ -247,7 +262,7 @@ public class Stats {
 
         // Likelihood of avgPricePerHour | Recommended
         // P(PperH∣recommended)= 1/(√2π*stdDevPricePerHourRec) * e^−( (2*stdDevPricePerHourRec)^2 / (h−avgHoursRec)^2 )
-        double PperH_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
+        double PperH_exponent = -Math.pow((hourToPriceRatio - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
         double pricePerHourRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevPricePerHourRec)) * Math.exp(PperH_exponent);
 
         // Likelihood of Windows | Recommended
@@ -274,10 +289,12 @@ public class Stats {
             likelihoodLinuxGivenRec = 1 - (percentLinuxRec / 100.0);
         }
 
+        // Likelihood of Being Recommended
         return (percentRec / 100) * hoursPlayedNotRec * pricePerHourRec * likelihoodWinGivenRec * likelihoodMacGivenRec * likelihoodLinuxGivenRec;
     }
 
     private double calculateNotRecommendedLikelihood(double hoursPlayed, double hourToPriceRatio, boolean windows, boolean mac, boolean linux) {
+        // Retrieve Relevant statistics
         double percentRec = statistics.get("percentRec");
         double avgHoursRec = statistics.get("avgLogHoursRec");
         double percentWinNotRec = statistics.get("percentWinNotRec");
@@ -296,7 +313,7 @@ public class Stats {
 
         // Likelihood of avgPricePerHour | Not Recommended
         // P(PperH∣Notrecommended)= 1/(√2π*stdDevPricePerHourNotRec) * e^−( (2*stdDevPricePerHourNotRec)^2 / (h−avgHoursNotRec)^2 )
-        double PperH_exponent = -Math.pow((HoursPlayed - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
+        double PperH_exponent = -Math.pow((hourToPriceRatio - avgHoursRec), 2) / (2 * Math.pow(stdDevPricePerHourRec, 2));
         double pricePerHourNotRec = (1 / (Math.sqrt(2 * Math.PI) * stdDevPricePerHourRec)) * Math.exp(PperH_exponent);
 
         // Likelihood of Windows | Not Recommended
@@ -323,6 +340,7 @@ public class Stats {
             likelihoodLinuxGivenNotRec = 1 - (percentLinuxNotRec / 100.0);
         }
 
+        // Likelihood of Being Not Recommended
         return (percentRec / 100) * hoursPlayedNotRec * pricePerHourNotRec * likelihoodWinGivenNotRec * likelihoodMacGivenNotRec * likelihoodLinuxGivenNotRec;
     }
 }

@@ -1,3 +1,12 @@
+/*
+Author: Cian Anderson
+Student Number: C22793219
+Date: 17/04/2024
+
+Description:
+This class contains a method for validating the performance of a classifier using a validation dataset.
+*/
+
 package machine_learning;
 
 import java.util.List;
