@@ -13,7 +13,7 @@ Machine Learning Project: Game Recommendation System.
   - Dataset
   - Models
   - Post-project Reflection
-  - Helpful Resources
+  - Helpful / Used Resources
 
 ## Personal Goal
 My personal goals for this project were to gain an understanding of machine learning, build on 0 prior knowledge, and improve my "Java" skills using a wide variety of Object-orientated techniques. 
@@ -70,7 +70,7 @@ Looking back on the project, I made a few mistakes. Here are a few things I woul
 3. I would choose a more straightforward Data set for my first machine learning project. The self-introduction of continuous variables complicated much of my code in the mid to late stages of the project.
 4. I would make Git commits earlier in the coding process as my laptop died mid-project, and I lost much of my progress, particularly my original cleaned data sets.
 
-## Helpful Resources
+## Helpful / Used Resources
 - [[Normal distribution image sourse](https://www.slideshare.net/plummer48/normal-and-non-normal-distributions)]: Image of Normal and Skewed distributions.
 - [[Naive Bayes classifier wiki](https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Gaussian_naive_Bayes)]: Wikipedia page on Naive Bayes classifier and its variations.
 - [[info video 1](https://www.youtube.com/watch?v=H3EjCKtlVog)]: Vidio by StatQuest with Josh Starmer on Gaussian Naive Bayes, Clearly Explained.
